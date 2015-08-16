@@ -10,8 +10,8 @@ import (
 )
 
 type Light struct {
-	Id     uint `json: "id"`
-	Value  uint `json: "value"`
+	Id     int  `json: "id"`
+	Value  int  `json: "value"`
 	Active bool `json: "active"`
 }
 
@@ -25,32 +25,52 @@ var ServerName = "*"
 var accessControlHeaders = "Origin, X-Requested-With, Content-Type, Accept"
 var accessControlMethods = "GET, POST, PUT"
 
-func HandleLight(w http.ResponseWriter, r *http.Request) {
+func HandleLightState(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Access-Control-Allow-Origin", ServerName)
 	w.Header().Add("Access-Control-Allow-Headers", accessControlHeaders)
 	w.Header().Add("Access-Control-Allow-Methods", accessControlMethods)
-	status := r.FormValue("status")
-	if status != "" {
-		fmt.Fprintf(w, "Handling Light Switch\n")
-		statusFlagString := "-v" + status
-		cmd := exec.Command("/usr/sbin/aprontest", "-u", "-m1", "-t1", statusFlagString)
-		err := cmd.Run()
-		if err != nil {
-			fmt.Println("Fatal" + err.Error())
-			return
+
+	var light Light
+	body, err := ioutil.ReadAll(r.Body)
+	fmt.Println("state body:", string(body))
+	err = json.Unmarshal(body, &light)
+	if !logError(err) {
+		active := "OFF"
+		if light.Active {
+			active = "ON"
 		}
-		fmt.Println("Light status", status)
+
+		args := []string{"-u", "-m" + strconv.Itoa(light.Id), "-t1", "-v" + active}
+		cmd := exec.Command("/usr/sbin/aprontest", args...)
+		err = cmd.Run()
+		if !logError(err) {
+			status := 200
+			fmt.Fprintf(w, "Success: %d", status)
+		} else {
+			fmt.Fprintf(w, "Error: %s", err.Error())
+		}
 	}
-	value := r.FormValue("value")
-	if value != "" {
-		valueFlagString := "-v" + value
-		cmd := exec.Command("/usr/sbin/aprontest", "-u", "-m1", "-t2", valueFlagString)
-		err := cmd.Run()
-		if err != nil {
-			fmt.Println("Fatal" + err.Error())
-			return
+}
+
+func HandleLightValue(w http.ResponseWriter, r *http.Request) {
+	w.Header().Add("Access-Control-Allow-Origin", ServerName)
+	w.Header().Add("Access-Control-Allow-Headers", accessControlHeaders)
+	w.Header().Add("Access-Control-Allow-Methods", accessControlMethods)
+
+	var light Light
+	body, err := ioutil.ReadAll(r.Body)
+	fmt.Println("value body:", string(body))
+	err = json.Unmarshal(body, &light)
+	if !logError(err) {
+		args := []string{"-u", "-m" + strconv.Itoa(light.Id), "-t2", "-v " + strconv.Itoa(light.Value)}
+		cmd := exec.Command("/usr/sbin/aprontest", args...)
+		err = cmd.Run()
+		if !logError(err) {
+			status := 200
+			fmt.Fprintf(w, "Success: %d", status)
+		} else {
+			fmt.Fprintf(w, "Error: %s", err.Error())
 		}
-		fmt.Println("Light value ", value)
 	}
 }
 
@@ -75,7 +95,8 @@ func HandleLED(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	http.HandleFunc("/light", HandleLight)
+	http.HandleFunc("/light/state", HandleLightState)
+	http.HandleFunc("/light/value", HandleLightValue)
 	http.HandleFunc("/led", HandleLED)
 	fmt.Println("Listening on port 5000")
 	http.ListenAndServe(":5000", nil)
