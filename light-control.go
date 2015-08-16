@@ -21,10 +21,14 @@ type RGB struct {
 	Blue  int `json: "blue"`
 }
 
-var ServerName = "http://192.168.1.11:5000"
+var ServerName = "*"
+var accessControlHeaders = "Origin, X-Requested-With, Content-Type, Accept"
+var accessControlMethods = "GET, POST, PUT"
 
 func HandleLight(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Access-Control-Allow-Origin", ServerName)
+	w.Header().Add("Access-Control-Allow-Headers", accessControlHeaders)
+	w.Header().Add("Access-Control-Allow-Methods", accessControlMethods)
 	status := r.FormValue("status")
 	if status != "" {
 		fmt.Fprintf(w, "Handling Light Switch\n")
@@ -51,7 +55,9 @@ func HandleLight(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandleLED(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("Allow-Control-Allow-Origin", ServerName)
+	w.Header().Add("Access-Control-Allow-Origin", ServerName)
+	w.Header().Add("Access-Control-Allow-Headers", accessControlHeaders)
+	w.Header().Add("Access-Control-Allow-Methods", accessControlMethods)
 	var colors RGB
 	body, err := ioutil.ReadAll(r.Body)
 	err = json.Unmarshal(body, &colors)
@@ -71,8 +77,8 @@ func HandleLED(w http.ResponseWriter, r *http.Request) {
 func main() {
 	http.HandleFunc("/light", HandleLight)
 	http.HandleFunc("/led", HandleLED)
-	http.ListenAndServe(":5000", nil)
 	fmt.Println("Listening on port 5000")
+	http.ListenAndServe(":5000", nil)
 }
 
 func logError(err error) (isError bool) {
