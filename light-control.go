@@ -126,6 +126,10 @@ func HandleSearchForLight(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandleListLights(w http.ResponseWriter, r *http.Request) {
+	w.Header().Add("Access-Control-Allow-Origin", ServerName)
+	w.Header().Add("Access-Control-Allow-Headers", accessControlHeaders)
+	w.Header().Add("Access-Control-Allow-Methods", accessControlMethods)
+
 	args := []string{"-l"}
 	response, err := exec.Command("/usr/sbin/aprontest", args...).Output()
 	if err != nil {
