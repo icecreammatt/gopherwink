@@ -1,18 +1,23 @@
 package main
 
 import (
+	"bufio"
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os/exec"
 	"strconv"
+	"strings"
 )
 
 type Light struct {
-	Id     int  `json: "id"`
-	Value  int  `json: "value"`
-	Active bool `json: "active"`
+	Id           int    `json: "id"`
+	Value        int    `json: "value"`
+	Active       bool   `json: "active"`
+	Interconnect string `json: "interconnect"`
+	Username     string `json: "username"`
 }
 
 type RGB struct {
@@ -24,6 +29,27 @@ type RGB struct {
 var ServerName = "*"
 var accessControlHeaders = "Origin, X-Requested-With, Content-Type, Accept"
 var accessControlMethods = "GET, POST, PUT"
+
+func parseDevicesFromListData(devices []string) (lights []Light) {
+	for i, device := range devices {
+		if i < 2 {
+			continue
+		}
+		pieces := strings.Fields(device)
+		var light Light
+		lightId, err := strconv.ParseInt(pieces[0], 10, 32)
+		if err != nil {
+			fmt.Println(err)
+			light.Id = 0
+		} else {
+			light.Id = int(lightId)
+		}
+		light.Interconnect = pieces[2]
+		light.Username = pieces[4]
+		lights = append(lights, light)
+	}
+	return
+}
 
 func HandleLightState(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Access-Control-Allow-Origin", ServerName)
@@ -101,7 +127,34 @@ func HandleSearchForLight(w http.ResponseWriter, r *http.Request) {
 
 func HandleListLights(w http.ResponseWriter, r *http.Request) {
 	args := []string{"-l"}
-	runCommand(w, "/usr/sbin/aprontest", args)
+	response, err := exec.Command("/usr/sbin/aprontest", args...).Output()
+	if err != nil {
+		fmt.Fprintf(w, "Error: %s", err.Error())
+	} else {
+		// Put response into a buffer which can then
+		// be split by lines
+		reader := bytes.NewReader([]byte(response))
+		scanner := bufio.NewScanner(reader)
+		var lines []string
+		for scanner.Scan() {
+			lines = append(lines, scanner.Text())
+		}
+
+		// Extract all the devices
+		var devices []string
+		for _, line := range lines {
+			// The empty line is the section divider before
+			// the groups section
+			if line != "" {
+				devices = append(devices, line)
+			} else {
+				break
+			}
+		}
+		devicesList := parseDevicesFromListData(devices)
+		devicesJSON, _ := json.Marshal(devicesList)
+		fmt.Fprintf(w, "%s", devicesJSON)
+	}
 }
 
 func runCommand(w http.ResponseWriter, command string, args []string) {
