@@ -7,6 +7,7 @@ Currently the only supported devices are lights
 ## Light Features
 
 * Add new lights
+* List lights
 * Turn lights on and off
 * Adjust brightness
 
@@ -16,5 +17,10 @@ Currently the only supported devices are lights
 2. `scp light-control-server root@<WINKHUB_IP>:`
 3. `ssh root<WINKHUB_IP> "./light-control-server &"`
 4. Visit `http://WINKHUB_IP:3000/` in the browser.
+
+## Future Features
+
+* Sleep timer
+* Clock control (Daylight based settings)
 
 ## License
