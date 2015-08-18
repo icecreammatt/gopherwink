@@ -94,7 +94,28 @@ func HandleLED(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func HandleSearchForLight(w http.ResponseWriter, r *http.Request) {
+	args := []string{"-a", "-r", "zigbee"}
+	runCommand(w, "/usr/sbin/aprontest", args)
+}
+
+func HandleListLights(w http.ResponseWriter, r *http.Request) {
+	args := []string{"-l"}
+	runCommand(w, "/usr/sbin/aprontest", args)
+}
+
+func runCommand(w http.ResponseWriter, command string, args []string) {
+	out, err := exec.Command(command, args...).Output()
+	if err != nil {
+		fmt.Fprintf(w, "Error: %s", err.Error())
+	} else {
+		fmt.Fprintf(w, "Success: %s", out)
+	}
+}
+
 func main() {
+	http.HandleFunc("/lights", HandleListLights)
+	http.HandleFunc("/light/search", HandleSearchForLight)
 	http.HandleFunc("/light/state", HandleLightState)
 	http.HandleFunc("/light/value", HandleLightValue)
 	http.HandleFunc("/led", HandleLED)
