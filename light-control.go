@@ -48,6 +48,51 @@ func parseDevicesFromListData(devices []string) (lights []Light) {
 		light.Username = pieces[4]
 		lights = append(lights, light)
 	}
+
+	lights = readDeviceAttributes(lights)
+	return
+}
+
+func readDeviceAttributes(lights []Light) (lightStatus []Light) {
+	for _, light := range lights {
+		args := []string{"-m" + strconv.Itoa(light.Id), "-l"}
+		response, err := exec.Command("/usr/sbin/aprontest", args...).Output()
+		if err != nil {
+			fmt.Printf("Error: %s\n", err.Error())
+		} else {
+			// Put response into a buffer which can then
+			// be split by lines
+			reader := bytes.NewReader([]byte(response))
+			scanner := bufio.NewScanner(reader)
+			var lines []string
+			for scanner.Scan() {
+				lines = append(lines, scanner.Text())
+			}
+			for i, line := range lines {
+				switch i {
+				case 14:
+					pieces := strings.Fields(line)
+					state := pieces[8]
+					fmt.Println("On_Off: ", state)
+					if state == "ON" {
+						light.Active = true
+					} else {
+						light.Active = false
+					}
+				case 15:
+					pieces := strings.Fields(line)
+					level, err := strconv.ParseInt(pieces[8], 10, 32)
+					if err != nil {
+						fmt.Println(err)
+					} else {
+						fmt.Println("Level: ", level)
+						light.Value = int(level)
+					}
+				}
+			}
+			lightStatus = append(lightStatus, light)
+		}
+	}
 	return
 }
 
