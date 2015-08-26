@@ -20,11 +20,11 @@ Currently the only supported devices are lights. This is a very early work in pr
 
 ## Future Features
 
-* Sleep timer
+* Light sleep timer
+* Support for door sensors
 * Clock control (Daylight based settings)
 
 ## TODO
-* Remove hard coded network URLs and replace with dynamic IP addresses
 * Need to fix error:
 
 ```
@@ -38,7 +38,5 @@ value body: {"id":2,"active":true,"value":252}
 * Add install script to place files into the proper locations
 * Add service as part of init scripts so it does not have to manually be started over SSH
 * Add ability to remove existing lights
-* Implement state so mobile app can detect if light is already on or off  
-    Ideally the state would be stored on a separate device with more memory like a Raspberry Pi
 
 ## License
