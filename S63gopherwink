@@ -4,7 +4,7 @@ case "${1}" in
    start)
       echo -n "Starting gopherwink..." 
       nohup /root/gopherwink &
-      set_rgb 255 0 255 
+      /usr/sbin/set_rgb 255 0 255 
       ;;
 
    stop)
