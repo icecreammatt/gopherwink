@@ -1,6 +1,5 @@
 # GopherWink
 
-
 This is server that runs on [Wink Hub](http://www.wink.com/products/wink-hub/) written in Go.  
 
 Currently the only supported devices are lights. This is a very early work in progress. This is not intended to be a replacement for OpenHAB. I just thought this would be fun to create.
@@ -38,12 +37,11 @@ Currently the only supported devices are lights. This is a very early work in pr
 * `scp gopherwink root@$WINK_IP_ADDRESS:/root/gopherwink`
 * `scp S63gopherwink root@$WINK_IP_ADDRESS:/etc/init.d/S63gopherwink`
 * `scp index.html root@$WINK_IP_ADDRESS:/var/www`
-* `scp main.js root@$WINK_IP_ADDRESS:/var/www`
+* `ssh root@$WINK_IP_ADDRESS "mkdir /var/www/assets`
+* `scp main.js root@$WINK_IP_ADDRESS:/var/www/assets/`
 * `ssh root@$WINK_IP_ADDRESS "/etc/init.d/S63gopherwink start"`
 * Visit `http://WINK_IP_ADDRESS/index.html` to access the controls.
 
-For more details please see the [README](https://github.com/icecreammatt/gopherwink)
-I
 ## Usage notes
 * New devices for now need to be connected using `aprontest` or the WinkApp
 * Zigbee lights can be added by visiting `http://WINK_IP_ADDRESS:5000/light/search`
