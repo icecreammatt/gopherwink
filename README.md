@@ -75,3 +75,5 @@ value body: {"id":2,"active":true,"value":252}
 * TLS Authentication for API
 
 ## License
+
+GPLv3
