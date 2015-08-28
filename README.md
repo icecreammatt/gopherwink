@@ -68,3 +68,7 @@ Currently the only supported devices are lights. This is a very early work in pr
 ## License
 
 GPLv3
+
+## Screenshots
+![Lights](screenshots/Lights.PNG)
+![LED](screenshots/LED.PNG)
