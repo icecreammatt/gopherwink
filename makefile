@@ -1,4 +1,3 @@
-winkIP := 192.168.1.11
 winkUser := root
 
 build:
@@ -7,9 +6,9 @@ build:
 .PHONY: deploy install
 
 deploy:
-	scp gopherwink ${winkUser}@${winkIP}:/root/gopherwink
+	scp gopherwink ${winkUser}@$(WINK_IP_ADDRESS):/root/gopherwink
 
 install:
-	scp gopherwink ${winkUser}@${winkIP}:/root/gopherwink
-	scp ./S63gopherwink ${winkUser}@${winkIP}:/etc/init.d/S63gopherwink
-	ssh ${winkUser}@${winkIP} "chmod 755 /etc/init.d/S63gopherwink"
+	scp gopherwink ${winkUser}@$(WINK_IP_ADDRESS):/root/gopherwink
+	scp ./S63gopherwink ${winkUser}@$(WINK_IP_ADDRESS):/etc/init.d/S63gopherwink
+	ssh ${winkUser}@$(WINK_IP_ADDRESS) "chmod 755 /etc/init.d/S63gopherwink"
