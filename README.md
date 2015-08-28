@@ -15,7 +15,7 @@ Currently the only supported devices are lights. This is a very early work in pr
 
 ### Building from source requirements
 
-* [Rooted Winkhub](http://localhost:1313/post/hacking-the-winkhub-part-1/) with SSH access
+* [Rooted Winkhub](/post/hacking-the-winkhub-part-1/) with SSH access
 * Go 1.5
 * NodeJS
 * ReactJS
@@ -50,7 +50,6 @@ Currently the only supported devices are lights. This is a very early work in pr
 * Zigbee lights can be added by visiting `http://WINK_IP_ADDRESS:5000/light/search`
 
 ## Todo
-* Add install script to place files into the proper locations
 * Add ability to remove existing lights
 
 ## Bugs
