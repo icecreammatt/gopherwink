@@ -1,7 +1,7 @@
 winkUser := root
 
 build:
-	GOOS=linux GOARCH=arm GOARM=5 /usr/local/go/bin/go build .
+	GOOS=linux GOARCH=arm GOARM=5 go build .
 
 .PHONY: deploy install release
 
