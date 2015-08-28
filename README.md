@@ -11,16 +11,16 @@ Currently the only supported devices are lights. This is a very early work in pr
 * Adjust brightness
 * Adjust Winkhub LED colors
 
-## GopherWink setup instructions:
+## GopherWink setup instructions
 
-### Building from source requirements:
+### Building from source requirements
 
 * [Rooted Winkhub](http://localhost:1313/post/hacking-the-winkhub-part-1/) with SSH access
 * Go 1.5
 * NodeJS
 * ReactJS
 
-### Install from source:
+### Install from source
 
 * `export WINK_IP_ADDRESS=X.X.X.X` (replace the x's with the Wink IP)
 * `git clone https://github.com/icecreammatt/gopherwink`
@@ -55,15 +55,6 @@ Currently the only supported devices are lights. This is a very early work in pr
 
 ## Bugs
 * File bugs [here](https://github.com/icecreammatt/gopherwink/issues)
-* Need to fix error:
-
-```
-Error: unexpected end of JSON input
-value body: {"id":1,"active":true,"value":255}
-value body:
-Error: unexpected end of JSON input
-value body: {"id":2,"active":true,"value":252}
-```
 
 ## Future Plans
 * Improved UI to add and remove lights
