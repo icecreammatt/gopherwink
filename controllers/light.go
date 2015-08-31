@@ -69,6 +69,20 @@ func (lc LightController) LightBrightness(w http.ResponseWriter, r *http.Request
 	}
 }
 
+func (lc LightController) SetName(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	lightId, err := strconv.Atoi(p.ByName("id"))
+	if !utils.LogError(err) {
+		var light models.Light
+		body, err := ioutil.ReadAll(r.Body)
+		fmt.Println("state body:", string(body))
+		err = json.Unmarshal(body, &light)
+		if !utils.LogError(err) {
+			args := []string{"-m", strconv.Itoa(lightId), "--set-name", light.Username}
+			utils.RunCommand(w, "/usr/sbin/aprontest", args)
+		}
+	}
+}
+
 func (lc LightController) AddLight(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	args := []string{"-a", "-r", "zigbee"}
 	utils.RunCommand(w, "/usr/sbin/aprontest", args)

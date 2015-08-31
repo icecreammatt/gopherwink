@@ -11,12 +11,13 @@ func NewRouter() *httprouter.Router {
 	lc := controllers.NewLightController()
 	led := controllers.NewLEDController()
 
-	router.GET("/lights", lc.LightsList)
 	router.POST("/lights", lc.AddLight)
+	router.GET("/lights", lc.LightsList)
 	router.PUT("/lights/:id/power", lc.LightPower)
-	router.DELETE("/lights/:id", lc.RemoveLight)
+	router.PUT("/lights/:id/name", lc.SetName)
 	router.PUT("/lights/:id/brightness", lc.LightBrightness)
 	router.PUT("/led", led.HandleLED)
+	router.DELETE("/lights/:id", lc.RemoveLight)
 
 	return router
 }
