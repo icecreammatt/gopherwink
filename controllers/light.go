@@ -74,6 +74,14 @@ func (lc LightController) AddLight(w http.ResponseWriter, r *http.Request, _ htt
 	utils.RunCommand(w, "/usr/sbin/aprontest", args)
 }
 
+func (lc LightController) RemoveLight(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	lightId, err := strconv.Atoi(p.ByName("id"))
+	if !utils.LogError(err) {
+		args := []string{"-d", "-m", strconv.Itoa(lightId)}
+		utils.RunCommand(w, "/usr/sbin/aprontest", args)
+	}
+}
+
 func (lc LightController) LightsList(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	args := []string{"-l"}
 	response, err := exec.Command("/usr/sbin/aprontest", args...).Output()
