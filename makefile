@@ -9,7 +9,7 @@ debug:
 	GOOS=linux GOARCH=arm GOARM=5 go build .
 	scp gopherwink ${winkUser}@$(WINK_IP_ADDRESS):/root/gopherwinkdebug
 
-deploy:
+deploy: build
 	-ssh ${winkUser}@$(WINK_IP_ADDRESS) "/etc/init.d/S63gopherwink stop"
 	scp gopherwink ${winkUser}@$(WINK_IP_ADDRESS):/root/gopherwink
 
