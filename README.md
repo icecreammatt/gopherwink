@@ -1,6 +1,6 @@
 # GopherWink
 
-This a is server that runs on the [Wink Hub](http://www.wink.com/products/wink-hub/) written in Go.  
+This is a server that runs on the [Wink Hub](http://www.wink.com/products/wink-hub/) written in Go.  
 
 Currently the only supported devices are lights. This is a very early work in progress. This is not intended to be a replacement for OpenHAB. I just thought this would be fun to create.
 
@@ -49,16 +49,12 @@ Currently the only supported devices are lights. This is a very early work in pr
 * New devices for now need to be connected using `aprontest` or the WinkApp
 * Zigbee lights can be added by visiting `http://WINK_IP_ADDRESS:5000/light/search`
 
-## Todo
-* Add ability to remove existing lights
-
 ## Bugs
 * File bugs [here](https://github.com/icecreammatt/gopherwink/issues)
 
 ## Future Plans
 * Improved UI to add and remove lights
 * Improved UI to rename devices
-* Refactor API to be RESTful
 * Add Proper support for GoControl Door Window Sensors
 * Sleep timer to keep light on for late nights
 * Snooze timer to turn on light after x minutes
