@@ -3,7 +3,6 @@ package utils
 import (
 	"bufio"
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"github.com/icecreammatt/gopherwink/models"
 	"net/http"
@@ -78,21 +77,23 @@ func readDeviceAttributes(lights []models.Light) (lightStatus []models.Light) {
 	return
 }
 
+func RunSilentCommand(command string, args []string) {
+	out, err := exec.Command(command, args...).Output()
+	res := models.Response{Result: string(out), Status: 200}
+	if err != nil {
+		res.Error = err.Error()
+	}
+	res.Log()
+}
+
 func RunCommand(w http.ResponseWriter, command string, args []string) {
 	out, err := exec.Command(command, args...).Output()
-	var res struct {
-		Status int
-		Result string
-		Error  string
-	}
-	res.Result = string(out)
-	res.Status = 200
+	res := models.Response{Result: string(out), Status: 200}
 	if err != nil {
 		res.Status = 500
 		res.Error = err.Error()
 	}
-	resJson, _ := json.Marshal(res)
-	fmt.Fprintf(w, "%s", resJson)
+	res.Respond(w)
 }
 
 func LogError(err error) (isError bool) {

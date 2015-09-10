@@ -15,6 +15,10 @@ func NewRouter() *httprouter.Router {
 	router.POST("/lights", lc.AddLight)
 	router.GET("/lights", lc.LightsList)
 	router.PUT("/lights/:id/power", lc.LightPower)
+
+	router.POST("/lights/:id/timer", lc.Timer)
+	router.DELETE("/lights/:id/timer", lc.CancelTimer)
+
 	router.PUT("/lights/:id/name", lc.SetName)
 	router.PUT("/lights/:id/brightness", lc.LightBrightness)
 	router.DELETE("/lights/:id", lc.RemoveLight)
