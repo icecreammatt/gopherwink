@@ -8,11 +8,8 @@ import (
 	"time"
 )
 
-const LATITUDE = float64(38.547133)
-const LONGITUDE = float64(-122.816380)
-
-func isSunset() bool {
-	t := astrotime.NextSunset(time.Now(), LATITUDE, LONGITUDE)
+func isSunset(latitude float64, longitude float64) bool {
+	t := astrotime.NextSunset(time.Now(), latitude, longitude)
 	// tzname, _ := t.Zone()
 	// fmt.Println(tzname)
 	// fmt.Printf("The next sunrise is %d:%02d %s on %d/%d/%d.\n", t.Hour(), t.Minute(), tzname, t.Month(), t.Day(), t.Year())
@@ -22,8 +19,8 @@ func isSunset() bool {
 	return false
 }
 
-func isSunrise() bool {
-	t := astrotime.NextSunrise(time.Now(), LATITUDE, LONGITUDE)
+func isSunrise(latitude float64, longitude float64) bool {
+	t := astrotime.NextSunrise(time.Now(), latitude, longitude)
 	tzname, _ := t.Zone()
 	// fmt.Println(tzname)
 	// fmt.Printf("The next sunrise is %d:%02d %s on %d/%d/%d.\n", t.Hour()-6, t.Minute()-25, tzname, t.Month(), t.Day(), t.Year())
@@ -34,27 +31,26 @@ func isSunrise() bool {
 	return false
 }
 
-func Start(intervalInSeconds int) {
+func Start(intervalInSeconds int, latitude float64, longitude float64, autoNightLights []int64) {
 	ticker := time.NewTicker(time.Millisecond * time.Duration(intervalInSeconds))
 	go func() {
 		// Hard code lights to change for now
-		lights := [2]int{1, 8}
 		for t := range ticker.C {
 			var state string
 			var changeLights bool
-			if isSunset() {
+			if isSunset(latitude, longitude) {
 				fmt.Println("Sunset", t)
 				state = "ON"
 				changeLights = true
-			} else if isSunrise() {
+			} else if isSunrise(latitude, longitude) {
 				fmt.Println("Sunrise", t)
 				state = "OFF"
 				changeLights = true
 			}
 			if changeLights == true {
 				fmt.Println("Updating lights")
-				for _, light := range lights {
-					args := []string{"-u", "-m" + strconv.Itoa(light), "-t1", "-v" + state}
+				for _, light := range autoNightLights {
+					args := []string{"-u", "-m" + strconv.FormatInt(light, 10), "-t1", "-v" + state}
 					cmd := exec.Command("/usr/sbin/aprontest", args...)
 					cmd.Run()
 				}
