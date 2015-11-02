@@ -8,16 +8,19 @@ build:
 debug:
 	GOOS=linux GOARCH=arm GOARM=5 go build .
 	scp gopherwink ${winkUser}@$(WINK_IP_ADDRESS):/root/gopherwinkdebug
+	scp settings.ini ${winkUser}@$(WINK_IP_ADDRESS):/root/settings.ini
 
 deploy: build
 	-ssh ${winkUser}@$(WINK_IP_ADDRESS) "/etc/init.d/S63gopherwink stop"
 	scp gopherwink ${winkUser}@$(WINK_IP_ADDRESS):/root/gopherwink
+	scp settings.ini ${winkUser}@$(WINK_IP_ADDRESS):/root/settings.ini
 
 install: build
 	scp ./S63gopherwink ${winkUser}@$(WINK_IP_ADDRESS):/etc/init.d/S63gopherwink
 	ssh ${winkUser}@$(WINK_IP_ADDRESS) "chmod 755 /etc/init.d/S63gopherwink"
 	-ssh ${winkUser}@$(WINK_IP_ADDRESS) "/etc/init.d/S63gopherwink stop"
 	scp gopherwink ${winkUser}@$(WINK_IP_ADDRESS):/root/gopherwink
+	scp settings.ini ${winkUser}@$(WINK_IP_ADDRESS):/root/settings.ini
 
 release:
 	rm -rf release
