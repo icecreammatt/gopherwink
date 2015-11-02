@@ -41,3 +41,13 @@ func main() {
 
 	http.ListenAndServe(":"+port, c.Handler(router))
 }
+
+func socketClient() {
+	// go routine
+	// make connection to remote server
+	// While true
+	// Read JSON
+	// Switch on Command
+	// Execute Command
+	// Return Response
+}
