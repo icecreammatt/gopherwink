@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-var port string = "5001"
+var port string = "5002"
 
 func main() {
 	c := cors.New(cors.Options{
@@ -39,15 +39,9 @@ func main() {
 	}
 	scheduler.Start(60*1000, latitude, longitude, autoNightLights)
 
-	http.ListenAndServe(":"+port, c.Handler(router))
-}
+	// TODO: Check for config to see if service is provided
+	// else ignore this part and do not enable the remote client
+	startSocketClient("192.168.1.17:1201")
 
-func socketClient() {
-	// go routine
-	// make connection to remote server
-	// While true
-	// Read JSON
-	// Switch on Command
-	// Execute Command
-	// Return Response
+	http.ListenAndServe(":"+port, c.Handler(router))
 }

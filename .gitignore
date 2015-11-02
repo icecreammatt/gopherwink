@@ -4,3 +4,5 @@ release.tgz
 release.zip
 apron.db
 apron.schema.sql
+client.key
+client.pem
