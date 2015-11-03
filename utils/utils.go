@@ -7,9 +7,23 @@ import (
 	"github.com/icecreammatt/gopherwink/models"
 	"net/http"
 	"os/exec"
+	"regexp"
 	"strconv"
 	"strings"
 )
+
+type ProductType int64
+
+const (
+	Unknown               ProductType = 0x0000
+	GELinkBulb                        = 0xce3d
+	GoControlSwitch                   = 0x0102
+	GoControlMotionSensor             = 0x0203
+	GoControlSiren                    = 0x0503
+)
+
+type Object interface {
+}
 
 func ParseDevicesFromListData(devices []string) (lights []models.Light) {
 	for i, device := range devices {
@@ -34,8 +48,45 @@ func ParseDevicesFromListData(devices []string) (lights []models.Light) {
 	return
 }
 
-func readDeviceAttributes(lights []models.Light) (lightStatus []models.Light) {
-	for _, light := range lights {
+func readProductType(lines []string, regex *regexp.Regexp) int64 {
+	for _, line := range lines {
+		if regex.MatchString(line) {
+			result := regex.FindAllString(line, 1)
+			if len(result) > 0 {
+				productString := result[0]
+				fmt.Println("Regex Result:", result)
+				productId := productString[len(productString)-6:]
+				fmt.Println("Parsed product Id", productId)
+				product, err := strconv.ParseInt(productId, 0, 32)
+				if err != nil {
+					fmt.Println("Error parsing product id", err)
+					return 0
+				}
+				return product
+			}
+			return 0
+		}
+	}
+	return 0
+}
+
+func readDeviceAttributes(devices []models.Light) (lightStatus []models.Light) {
+	// sample := "Manufacturer ID: 0x10dc, Product Type: 0x2001 Product Number: 0xce3d"
+	// r, err := regexp.Compile(`Product Number: [x0-9a-f]*`)
+	// if err != nil {
+	// 	fmt.Println("Issue with regex")
+	// 	return
+	// }
+	// if r.MatchString(sample) == true {
+	// 	fmt.Println("Match ")
+	// 	fmt.Println(r.FindAllString(sample, 1))
+	// } else {
+	// 	fmt.Println("No match ")
+	// }
+	regexString := "Product Number: [x0-9a-f]*"
+	r := regexp.MustCompile(regexString)
+
+	for _, light := range devices {
 		args := []string{"-m" + strconv.Itoa(light.Id), "-l"}
 		response, err := exec.Command("/usr/sbin/aprontest", args...).Output()
 		if err != nil {
@@ -49,29 +100,43 @@ func readDeviceAttributes(lights []models.Light) (lightStatus []models.Light) {
 			for scanner.Scan() {
 				lines = append(lines, scanner.Text())
 			}
-			for i, line := range lines {
-				switch i {
-				case 14:
-					pieces := strings.Fields(line)
-					state := pieces[8]
-					fmt.Println("On_Off: ", state)
-					if state == "ON" {
-						light.Active = true
-					} else {
-						light.Active = false
-					}
-				case 15:
-					pieces := strings.Fields(line)
-					level, err := strconv.ParseInt(pieces[8], 10, 32)
-					if err != nil {
-						fmt.Println(err)
-					} else {
-						fmt.Println("Level: ", level)
-						light.Value = int(level)
+			productType := readProductType(lines, r)
+			switch productType {
+			case GELinkBulb:
+				for i, line := range lines {
+					switch i {
+					case 14:
+						pieces := strings.Fields(line)
+						state := pieces[8]
+						fmt.Println("On_Off: ", state)
+						if state == "ON" {
+							light.Active = true
+						} else {
+							light.Active = false
+						}
+					case 15:
+						pieces := strings.Fields(line)
+						level, err := strconv.ParseInt(pieces[8], 10, 32)
+						if err != nil {
+							fmt.Println(err)
+						} else {
+							fmt.Println("Level: ", level)
+							light.Value = int(level)
+						}
 					}
 				}
+				lightStatus = append(lightStatus, light)
+				break
+			case GoControlSiren:
+				break
+			case GoControlSwitch:
+				break
+			case GoControlMotionSensor:
+				break
+			default:
+				break
 			}
-			lightStatus = append(lightStatus, light)
+
 		}
 	}
 	return
