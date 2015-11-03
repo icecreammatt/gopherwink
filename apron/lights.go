@@ -5,18 +5,54 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/icecreammatt/gopherwink/models"
 	"github.com/icecreammatt/gopherwink/utils"
 	"os/exec"
 )
 
 type Apron struct{}
 
-func (apron Apron) List() []byte {
-	args := []string{"-l"}
-	response, err := exec.Command("/usr/sbin/aprontest", args...).Output()
+func (apron Apron) ListAll() []byte {
+	devicesList, err := apron.List()
 	if err != nil {
 		fmt.Println("Error", err.Error())
 		return []byte("Error executing list command")
+	}
+	devicesJSON, _ := json.Marshal(devicesList)
+	return devicesJSON
+}
+
+func (apron Apron) ListLights() []byte {
+	devicesList, err := apron.List()
+	if err != nil {
+		fmt.Println("Error", err.Error())
+		return []byte("Error executing list command")
+	}
+	devicesList = filter(devicesList, func(light models.Light) bool {
+		return light.Interconnect == "ZIGBEE"
+	})
+	devicesJSON, _ := json.Marshal(devicesList)
+	return devicesJSON
+}
+
+func (apron Apron) ListSensors() []byte {
+	devicesList, err := apron.List()
+	if err != nil {
+		fmt.Println("Error", err.Error())
+		return []byte("Error executing list command")
+	}
+	devicesList = filter(devicesList, func(light models.Light) bool {
+		return light.Interconnect == "ZWAVE"
+	})
+	devicesJSON, _ := json.Marshal(devicesList)
+	return devicesJSON
+}
+
+func (apron Apron) List() ([]models.Light, error) {
+	args := []string{"-l"}
+	response, err := exec.Command("/usr/sbin/aprontest", args...).Output()
+	if err != nil {
+		return nil, err
 	} else {
 		// Put response into a buffer which can then
 		// be split by lines
@@ -38,9 +74,16 @@ func (apron Apron) List() []byte {
 				break
 			}
 		}
-		devicesList := utils.ParseDevicesFromListData(devices)
-		devicesJSON, _ := json.Marshal(devicesList)
-		fmt.Printf("%s", devicesJSON)
-		return devicesJSON
+		return utils.ParseDevicesFromListData(devices), nil
 	}
+}
+
+func filter(devices []models.Light, f func(models.Light) bool) []models.Light {
+	lights := make([]models.Light, 0)
+	for _, light := range devices {
+		if f(light) {
+			lights = append(lights, light)
+		}
+	}
+	return lights
 }

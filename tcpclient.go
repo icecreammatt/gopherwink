@@ -56,7 +56,7 @@ func startSocketClient(service string) {
 						conn.Write([]byte(`\n{"test": "success"}`))
 					case "list":
 						aprontest := apron.Apron{}
-						devices := aprontest.List()
+						devices := aprontest.ListAll()
 						fmt.Println("Devices", string(devices))
 						conn.Write([]byte(`\n{"devices": "` + string(devices) + `"}`))
 					default:
