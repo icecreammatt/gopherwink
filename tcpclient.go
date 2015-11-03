@@ -54,7 +54,17 @@ func startSocketClient(service string) {
 					switch messageStrippped {
 					case "test":
 						conn.Write([]byte(`\n{"test": "success"}`))
-					case "list":
+					case "list-sensors":
+						aprontest := apron.Apron{}
+						devices := aprontest.ListSensors()
+						fmt.Println("Devices", string(devices))
+						conn.Write([]byte(`\n{"devices": "` + string(devices) + `"}`))
+					case "list-lights":
+						aprontest := apron.Apron{}
+						devices := aprontest.ListLights()
+						fmt.Println("Devices", string(devices))
+						conn.Write([]byte(`\n{"devices": "` + string(devices) + `"}`))
+					case "list-all":
 						aprontest := apron.Apron{}
 						devices := aprontest.ListAll()
 						fmt.Println("Devices", string(devices))
