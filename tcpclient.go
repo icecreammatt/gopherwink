@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/icecreammatt/gopherwink/apron"
 	"strings"
+	"time"
 )
 
 type Message struct {
@@ -35,8 +36,20 @@ func startSocketClient(service string) {
 				buf := make([]byte, 512)
 				_, err := conn.Read(buf)
 				if err != nil {
+					fmt.Println("\nError reading from socket connection")
 					conn.Close()
-					fmt.Println("\nConnection was closed")
+					fmt.Println("\nConnection closed, will attempt to reconnect in 1 minute...")
+					time.Sleep(1 * time.Minute)
+					fmt.Println("\nAttempting to reconnect...")
+					conn, err = tls.Dial("tcp", service, &config)
+					if err != nil {
+						fmt.Println("Reconnect failed...")
+					} else {
+						_, err = conn.Write([]byte("test_auth_key\n"))
+						if err != nil {
+							fmt.Println("Error", err.Error())
+						}
+					}
 				}
 				stringCleaned := bytes.Trim(buf, "\x00")
 				var str string = fmt.Sprintf("%s", stringCleaned)
@@ -53,22 +66,25 @@ func startSocketClient(service string) {
 					messageStrippped := strings.Replace(message.Message, "\n", "", -1)
 					switch messageStrippped {
 					case "test":
-						conn.Write([]byte(`\n{"test": "success"}`))
+						conn.Write([]byte(`{"test": "success"}`))
 					case "list-sensors":
 						aprontest := apron.Apron{}
 						devices := aprontest.ListSensors()
 						fmt.Println("Devices", string(devices))
-						conn.Write([]byte(`\n{"devices": "` + string(devices) + `"}`))
+						// conn.Write([]byte(`{"devices": "` + string(devices) + `"}`))
+						conn.Write(devices)
 					case "list-lights":
 						aprontest := apron.Apron{}
 						devices := aprontest.ListLights()
 						fmt.Println("Devices", string(devices))
-						conn.Write([]byte(`\n{"devices": "` + string(devices) + `"}`))
+						// conn.Write([]byte(`{"devices": "` + string(devices) + `"}`))
+						conn.Write(devices)
 					case "list-all":
 						aprontest := apron.Apron{}
 						devices := aprontest.ListAll()
 						fmt.Println("Devices", string(devices))
-						conn.Write([]byte(`\n{"devices": "` + string(devices) + `"}`))
+						// conn.Write([]byte(`{"devices": "` + string(devices) + `"}`))
+						conn.Write(devices)
 					default:
 						fmt.Printf("Unexpected command %T\n", message.Message)
 					}
@@ -77,7 +93,7 @@ func startSocketClient(service string) {
 		}()
 
 		// Login
-		_, err = conn.Write([]byte(`{"authkey": "test123"}`))
+		_, err = conn.Write([]byte("test_auth_key\n"))
 		if err != nil {
 			fmt.Println("Error", err.Error())
 		}
