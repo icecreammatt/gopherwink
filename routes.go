@@ -9,12 +9,16 @@ func NewRouter() *httprouter.Router {
 	router := httprouter.New()
 
 	lc := controllers.NewLightController()
+	sc := controllers.NewSensorController()
 	led := controllers.NewLEDController()
 
 	// Manage Zigbee Lights
 	router.POST("/lights", lc.AddLight)
 	router.GET("/lights", lc.LightsList)
 	router.PUT("/lights/:id/power", lc.LightPower)
+
+	// View Sensor Info
+	router.GET("/sensors", sc.SensorsList)
 
 	router.POST("/lights/:id/timer", lc.Timer)
 	router.DELETE("/lights/:id/timer", lc.CancelTimer)

@@ -28,10 +28,7 @@ func (apron Apron) ListLights() []byte {
 		fmt.Println("Error", err.Error())
 		return []byte("Error executing list command")
 	}
-	devicesList = filter(devicesList, func(light models.Light) bool {
-		return light.Interconnect == "ZIGBEE"
-	})
-	devicesJSON, _ := json.Marshal(devicesList)
+	devicesJSON, _ := json.Marshal(devicesList.Lights)
 	return devicesJSON
 }
 
@@ -41,18 +38,16 @@ func (apron Apron) ListSensors() []byte {
 		fmt.Println("Error", err.Error())
 		return []byte("Error executing list command")
 	}
-	devicesList = filter(devicesList, func(light models.Light) bool {
-		return light.Interconnect == "ZWAVE"
-	})
-	devicesJSON, _ := json.Marshal(devicesList)
+
+	devicesJSON, _ := json.Marshal(devicesList.Switches)
 	return devicesJSON
 }
 
-func (apron Apron) List() ([]models.Light, error) {
+func (apron Apron) List() (products models.Products, err error) {
 	args := []string{"-l"}
 	response, err := exec.Command("/usr/sbin/aprontest", args...).Output()
 	if err != nil {
-		return nil, err
+		return products, err
 	} else {
 		// Put response into a buffer which can then
 		// be split by lines

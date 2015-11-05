@@ -5,6 +5,5 @@ type (
 		Device
 		BatteryLevel int  `json: "batteryLevel"`
 		OnOff        bool `json: "onOff"`
-		Armed        bool `json: "armed"`
 	}
 )

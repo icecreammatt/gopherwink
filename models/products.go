@@ -9,3 +9,10 @@ const (
 	GoControlMotionSensor             = 0x0203
 	GoControlSiren                    = 0x0503
 )
+
+type Products struct {
+	Lights        []Light
+	Switches      []Switch
+	MotionSensors []MotionSensor
+	Sirens        []Siren
+}
