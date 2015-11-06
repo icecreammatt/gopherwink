@@ -22,6 +22,8 @@ func main() {
 
 	var latitude float64
 	var longitude float64
+	var connectionString string
+	var authkey string
 	var autoNightLights []int64
 	config, err := mini.LoadConfiguration("settings.ini")
 	if err != nil {
@@ -36,12 +38,21 @@ func main() {
 
 		autoNightLights = config.IntegersFromSection("auto-night-lights", "deviceId")
 		fmt.Println(autoNightLights)
+
+		connectionString = config.StringFromSection("remote-client", "connectionString", "")
+		fmt.Println(connectionString)
+
+		authkey = config.StringFromSection("remote-client", "authkey", "")
+		fmt.Println(authkey)
 	}
 	scheduler.Start(60*1000, latitude, longitude, autoNightLights)
 
 	// TODO: Check for config to see if service is provided
 	// else ignore this part and do not enable the remote client
-	startSocketClient("192.168.1.17:1201")
+	if authkey != "" && connectionString != "" {
+		fmt.Println("Starting remote socket connection")
+		startSocketClient(connectionString, authkey)
+	}
 
 	http.ListenAndServe(":"+port, c.Handler(router))
 }

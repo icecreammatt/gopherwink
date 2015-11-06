@@ -15,7 +15,7 @@ type Message struct {
 	Message  string `json:"message"`
 }
 
-func startSocketClient(service string) {
+func startSocketClient(service string, authkey string) {
 	// read default x509 certificate
 	cert, err := tls.LoadX509KeyPair("client.pem", "client.key")
 	if err != nil {
@@ -45,7 +45,7 @@ func startSocketClient(service string) {
 					if err != nil {
 						fmt.Println("Reconnect failed...")
 					} else {
-						_, err = conn.Write([]byte("test_auth_key\n"))
+						_, err = conn.Write([]byte(authkey))
 						if err != nil {
 							fmt.Println("Error", err.Error())
 						}
