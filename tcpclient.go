@@ -93,7 +93,7 @@ func startSocketClient(service string, authkey string) {
 		}()
 
 		// Login
-		_, err = conn.Write([]byte("test_auth_key\n"))
+		_, err = conn.Write([]byte(authkey))
 		if err != nil {
 			fmt.Println("Error", err.Error())
 		}
