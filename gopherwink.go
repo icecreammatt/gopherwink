@@ -8,8 +8,6 @@ import (
 	"net/http"
 )
 
-var port string = "5000"
-
 func main() {
 	c := cors.New(cors.Options{
 		AllowedOrigins:     []string{"*"},
@@ -18,7 +16,6 @@ func main() {
 		OptionsPassthrough: false,
 	})
 	router := NewRouter()
-	fmt.Println("Listening on port", port)
 
 	var latitude float64
 	var longitude float64
@@ -54,6 +51,7 @@ func main() {
 		startSocketClient(connectionString, authkey)
 	}
 
-	fmt.Println("Listening on port:", port)
+	port := config.StringFromSection("port", "port", "5002")
+	fmt.Println("Listening on port", port)
 	http.ListenAndServe(":"+port, c.Handler(router))
 }
