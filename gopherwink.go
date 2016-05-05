@@ -46,12 +46,16 @@ func main() {
 
 	// TODO: Check for config to see if service is provided
 	// else ignore this part and do not enable the remote client
-	if authkey != "" && connectionString != "" {
-		fmt.Println("Starting remote socket connection")
-		startSocketClient(connectionString, authkey)
-	}
+	// if authkey != "" && connectionString != "" {
+	// 	fmt.Println("Starting remote socket connection")
+	// 	startSocketClient(connectionString, authkey)
+	// }
 
-	port := config.StringFromSection("port", "port", "5002")
-	fmt.Println("Listening on port", port)
-	http.ListenAndServe(":"+port, c.Handler(router))
+	appPort := config.StringFromSection("port", "app", "5000")
+	fmt.Println("App Listening on port", appPort)
+	go http.ListenAndServe(":"+appPort, c.Handler(router))
+
+	staticPort := config.StringFromSection("port", "static", "80")
+	fmt.Println("Static Listening on port", staticPort)
+	panic(http.ListenAndServe(":"+staticPort, http.FileServer(http.Dir("/var/www/"))))
 }
