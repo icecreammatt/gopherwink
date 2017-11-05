@@ -18,6 +18,7 @@ tail -Fn0 /var/log/messages | while read line ; do
     if [ $newState = "TRUE" ]
     then
     switchState="OPENED"
+    curl 192.168.40.18:8080/sound &
     else
     switchState="CLOSED"
     fi
